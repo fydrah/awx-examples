@@ -1,0 +1,27 @@
+- hosts: all
+  tasks:
+    - name: Install httpd (Debian)
+      apt:
+        name: apache2
+        state: latest
+      when: ansible_os_family|lower == "debian"
+      notify: restart httpd
+
+    - name: Install httpd (RedHat)
+      yum:
+        name: latest
+        state: present
+      when: ansible_os_family|lower == "redhat"
+      notify: restart httpd
+
+  handlers:
+    - name: restart httpd
+      systemd:
+        name: >-
+          {%- if ansible_os_family|lower == 'debian' -%}
+            apache2
+          {%- else -%}
+            httpd
+          {%- endif -%}
+        state: restarted
+        enabled: true

@@ -1,0 +1,41 @@
+---
+# tasks file for redis
+
+- name: Install redis
+  package:
+    name: redis
+    state: present
+
+- name: Configure redis
+  copy:
+    path: /etc/redis.conf
+    content: |
+      bind 0.0.0.0
+      protected-mode yes
+      port 6379
+      tcp-backlog 511
+      timeout 0
+      tcp-keepalive 300
+      daemonize no
+      supervised no
+      pidfile /var/run/redis_6379.pid
+      loglevel notice
+      logfile "/var/log/redis.log"
+      databases 16
+      save 900 1
+      save 300 10
+      save 60 10000
+      dbfilename dump.rdb
+      dir /var/lib/redis
+    ower: root
+    group: root
+    mode: 0644
+  notify: restart redis
+
+- meta: flush_handlers
+
+- name: Make sure redis is started
+  systemd:
+    name: redis
+    state: started
+    enabled: true
